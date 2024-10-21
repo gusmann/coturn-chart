@@ -21,9 +21,22 @@ service:
   #   LoadBalancer: This was what was originally set for this chart in the
   #                 upstream of this fork, but with no details
   type: ClusterIP
-  # -- I don't actually know what this is 🤔 open a PR if you know
-  #    was originally "Local"
+  # -- externalTrafficPolicy: Set to Cluster to route external traffic 
+  #    to all ready endpoints and Local to only route to ready node-local 
+  #    endpoints. If the traffic policy is Local and there are are no node-local
+  #    endpoints, the kube-proxy does not forward any traffic for the Service.
+  # https://kubernetes.io/docs/reference/networking/virtual-ips/#traffic-policies
   externalTrafficPolicy: ""
+  # -- internalTrafficPolicy: Per docs, by default set to 'Cluster', which will 
+  #    "route internal traffic to all ready endpoints." If set to Local and there
+  #    are no node-local endpoints, traffic is dropped by kube-proxy.
+  internalTrafficPolicy: ""
+  # -- sessionAffinity: Defaults to 'None', but Coturn benefits from keeping client 
+  #    sessions consistent with the same pod which can be enabled by setting this
+  #    to 'ClientIP'. 'ClientIP' will ensure that the same client IP consistently 
+  #    routes to the same Coturn pod, which is crucial for uninterrupted
+  #    real-time communication sessions.
+  sessionAffinity: ""
 
 image:
   # -- container registry and repo for coturn docker image

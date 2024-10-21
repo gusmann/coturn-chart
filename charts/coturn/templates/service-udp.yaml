@@ -10,6 +10,9 @@ spec:
   {{- if .Values.service.externalTrafficPolicy }}
   externalTrafficPolicy: {{.Values.service.externalTrafficPolicy}}
   {{- end }}
+  {{- if .Values.service.internalTrafficPolicy }}
+  internalTrafficPolicy: {{.Values.service.internalTrafficPolicy}}
+  {{- end }}
   ports:
     - name: turn-udp
       port: {{ .Values.coturn.ports.listening }}
@@ -23,3 +26,22 @@ spec:
     app.kubernetes.io/name: {{ .Release.Name }}-coturn
     app.kubernetes.io/instance: {{ .Release.Name }}
   type: {{ .Values.service.type }}
+  sessionAffinity: {{ .Values.service.sessionAffinity | default "None" }}
+  {{- if .Values.service.externalIPs }}
+  externalIPs:
+    {{- range .Values.service.externalIPs }}
+    - {{ . }}
+    {{- end }}
+  {{- end }}
+  loadBalancerIP: {{ .Values.service.loadBalancerIP | default "" }}
+  {{- if .Values.service.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+    {{- range .Values.service.loadBalancerSourceRanges }}
+    - {{ . }}
+    {{- end }}
+  {{- end }}
+  sessionAffinityConfig:
+    {{- if eq .Values.service.sessionAffinity "ClientIP" }}
+    clientIP:
+      timeoutSeconds: {{ .Values.service.sessionAffinityTimeoutSeconds | default 10800 }}
+    {{- end }}
